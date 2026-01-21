@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import WeatherInfo from '@/components/ui/WeatherInfo';
 import TimeSlider from '@/components/ui/TimeSlider';
@@ -30,6 +30,8 @@ export default function Home() {
     viewingHourOffset,
   } = useWeatherStore();
 
+  const [isTimeTravelDragging, setIsTimeTravelDragging] = useState(false);
+
   // Fetch real weather on mount
   useEffect(() => {
     fetchWeather('Seoul');
@@ -47,13 +49,17 @@ export default function Home() {
   return (
     <main className="relative w-screen h-[100dvh] overflow-hidden">
       {/* Living Diorama View */}
-      <WeatherView />
+      {/* @ts-ignore - Dynamic component props mismatch workaround for now */}
+      <WeatherView isDragging={isTimeTravelDragging} />
 
       {/* Weather Info Overlay */}
       <WeatherInfo />
 
       {/* Time Travel Slider */}
-      <TimeSlider />
+      <TimeSlider
+        onDragStart={() => setIsTimeTravelDragging(true)}
+        onDragEnd={() => setIsTimeTravelDragging(false)}
+      />
 
       {/* Brand Logo - Bottom Left */}
       <div className="absolute bottom-6 left-6 z-40">

@@ -23,7 +23,11 @@ import FrostOverlay from '@/components/effects/FrostOverlay';
 const SKY_TOP_LIMIT = 5;     // % from top (highest sun point at noon)
 const SKY_BOTTOM_LIMIT = 35;  // % from top (horizon line where sun rises/sets)
 
-export default function WeatherView() {
+interface WeatherViewProps {
+    isDragging?: boolean;
+}
+
+export default function WeatherView({ isDragging = false }: WeatherViewProps) {
     const { viewingData, isDebugMode, isLoading } = useWeatherStore();
     const { weather, sun } = viewingData;
     const [mounted, setMounted] = useState(false);
@@ -146,7 +150,10 @@ export default function WeatherView() {
 
             {/* Layer 3.5: Frost Overlay (Interactive Winter Effect) */}
             {mounted && viewingData.weather.temperature <= 0 && (
-                <FrostOverlay temperature={viewingData.weather.temperature} />
+                <FrostOverlay
+                    temperature={viewingData.weather.temperature}
+                    isDragging={isDragging}
+                />
             )}
 
             {/* Layer 4: Weather Overlay */}

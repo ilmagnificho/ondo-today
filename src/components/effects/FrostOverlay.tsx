@@ -1,32 +1,33 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Hand } from 'lucide-react'; // Icon for hint
 
 /**
- * FrostOverlay (Optimized)
+ * FrostOverlay (UX Improved)
  * 
- * Features:
- * - Refreezing logic using useRef for performance
- * - High-DPI (Retina) support via window.devicePixelRatio
- * - Improved Touch/Mouse event handling
- * - "Wipe" effect using destination-out composite operation
+ * Changes:
+ * 1. Vignette Style: Center is clearer, edges are frozen.
+ * 2. Visual Hints: "Wipe to clear" guide appears initially.
+ * 3. Slider Integration: Frost fades out when dragging time slider.
  */
 
 interface FrostOverlayProps {
     temperature: number;
+    isDragging?: boolean; // New prop from parent
 }
 
-export default function FrostOverlay({ temperature }: FrostOverlayProps) {
+export default function FrostOverlay({ temperature, isDragging = false }: FrostOverlayProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    // Animation refs (No state updates to prevent re-renders)
+    // Hint State
+    const [showHint, setShowHint] = useState(true);
     const isInteractingRef = useRef(false);
     const wipeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Config based on temperature
-    // Cap opacity to max 0.85
-    const frostOpacity = Math.min(0.85, 0.3 + Math.abs(temperature) * 0.05);
-    // Refreeze only happens below -5°C
+    // Config
+    // Opacity logic: Colder = More opaque edges
+    const frostOpacity = Math.min(0.9, 0.4 + Math.abs(temperature) * 0.05);
     const refreezeSpeed = temperature < -5 ? Math.abs(temperature + 5) * 0.05 : 0;
     const isVeryCold = temperature < -5;
 
@@ -38,56 +39,59 @@ export default function FrostOverlay({ temperature }: FrostOverlayProps) {
 
         let animationFrameId: number;
 
-        // Initialize Canvas with Frost
         const initFrost = () => {
             const dpr = window.devicePixelRatio || 1;
-
-            // Set internal buffer size to match screen pixels
             canvas.width = window.innerWidth * dpr;
             canvas.height = window.innerHeight * dpr;
-
-            // Scale context so drawing operations use logical pixels
             ctx.scale(dpr, dpr);
-
-            // Set CSS size to match logical pixels
             canvas.style.width = `${window.innerWidth}px`;
             canvas.style.height = `${window.innerHeight}px`;
 
-            drawFrostLayer(ctx, window.innerWidth, window.innerHeight, frostOpacity);
+            drawVignetteFrost(ctx, window.innerWidth, window.innerHeight);
         };
 
-        const drawFrostLayer = (context: CanvasRenderingContext2D, w: number, h: number, opacity: number) => {
+        // 🎨 New Vignette Drawing Logic
+        const drawVignetteFrost = (context: CanvasRenderingContext2D, w: number, h: number) => {
             context.globalCompositeOperation = 'source-over';
-            context.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+
+            // Create Radial Gradient (Vignette)
+            // Center (0% - 30%): Transparent
+            // Edges (80% - 100%): Frosty
+            const gradient = context.createRadialGradient(w / 2, h / 2, w * 0.15, w / 2, h / 2, w * 0.7);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.05)'); // Almost clear center
+            gradient.addColorStop(0.5, `rgba(255, 255, 255, ${frostOpacity * 0.5})`);
+            gradient.addColorStop(1, `rgba(255, 255, 255, ${frostOpacity})`);
+
+            context.fillStyle = gradient;
             context.fillRect(0, 0, w, h);
 
-            // Add organic noise texture
+            // Add Noise (Ice Crystals) - Concentrated on edges
             context.fillStyle = 'rgba(255, 255, 255, 0.15)';
             for (let i = 0; i < 200; i++) {
-                const x = Math.random() * w;
-                const y = Math.random() * h;
-                const size = Math.random() * 100 + 50;
+                const angle = Math.random() * Math.PI * 2;
+                // Distribute noise more towards edges
+                const dist = (Math.random() * 0.5 + 0.5) * (Math.max(w, h) / 2);
+                const x = w / 2 + Math.cos(angle) * dist;
+                const y = h / 2 + Math.sin(angle) * dist;
+                const size = Math.random() * 60 + 20;
+
                 context.beginPath();
                 context.arc(x, y, size, 0, Math.PI * 2);
                 context.fill();
             }
         };
 
-        // Refreezing Animation Loop
+        // Refreezing Loop
         const loop = () => {
-            // Only refreeze if very cold and NOT currently wiping
-            if (isVeryCold && !isInteractingRef.current) {
-                // Jitter to make refreezing feel organic (not machine-like)
-                if (Math.random() > 0.4) {
+            if (isVeryCold && !isInteractingRef.current && !isDragging) {
+                // Slower refreeze for vignette style to keep center clear longer
+                if (Math.random() > 0.6) {
                     ctx.globalCompositeOperation = 'source-over';
-                    ctx.fillStyle = `rgba(255, 255, 255, ${0.005 * refreezeSpeed})`;
-
-                    // Draw over the logical canvas area
-                    // Note: We don't need to manually scale here because ctx is already scaled
+                    // Very subtle refreeze
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.003 * refreezeSpeed})`;
                     ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
                 }
             }
-
             animationFrameId = requestAnimationFrame(loop);
         };
 
@@ -99,48 +103,35 @@ export default function FrostOverlay({ temperature }: FrostOverlayProps) {
             window.removeEventListener('resize', initFrost);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [temperature, frostOpacity, refreezeSpeed, isVeryCold]); // Removed isInteracting dependency
+    }, [temperature, frostOpacity, refreezeSpeed, isVeryCold, isDragging]);
 
-
-    // Interaction Handlers (Wiping Logic)
+    // Interaction Handlers
     const handleWipe = (clientX: number, clientY: number) => {
+        // Hide hint on first interaction
+        if (showHint) setShowHint(false);
+
         const canvas = canvasRef.current;
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Flag interaction start
         isInteractingRef.current = true;
-
-        // Coordinate correction relative to canvas
         const rect = canvas.getBoundingClientRect();
         const x = clientX - rect.left;
         const y = clientY - rect.top;
 
-        // 'destination-out' = Erase mode
         ctx.globalCompositeOperation = 'destination-out';
+        const brushSize = 70;
 
-        const brushSize = 60;
-
-        // Soft edge brush
         const gradient = ctx.createRadialGradient(x, y, brushSize * 0.2, x, y, brushSize);
-        gradient.addColorStop(0, 'rgba(0,0,0,1)');   // Center: Full erase
-        gradient.addColorStop(1, 'rgba(0,0,0,0)');   // Edge: Fade
+        gradient.addColorStop(0, 'rgba(0,0,0,1)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(x, y, brushSize, 0, Math.PI * 2);
         ctx.fill();
 
-        // 💦 "Melting Edge" Detail (Optional polish)
-        // Adds tiny random clear spots nearby to simulate uneven melting/wiping
-        if (Math.random() > 0.5) {
-            ctx.beginPath();
-            ctx.arc(x + (Math.random() - 0.5) * 50, y + (Math.random() - 0.5) * 50, 5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-
-        // Debounce timer to resume refreezing
         if (wipeTimeoutRef.current) clearTimeout(wipeTimeoutRef.current);
         wipeTimeoutRef.current = setTimeout(() => {
             isInteractingRef.current = false;
@@ -148,33 +139,36 @@ export default function FrostOverlay({ temperature }: FrostOverlayProps) {
     };
 
     return (
-        <canvas
-            ref={canvasRef}
-            // touch-none: Prevents scrolling on mobile while wiping
-            className="absolute inset-0 z-30 touch-none cursor-crosshair opacity-90 mix-blend-overlay"
+        <div className={`absolute inset-0 z-30 pointer-events-none transition-opacity duration-500 ${isDragging ? 'opacity-10' : 'opacity-100'}`}>
+            <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full touch-none cursor-crosshair mix-blend-overlay pointer-events-auto"
+                onMouseDown={(e) => handleWipe(e.clientX, e.clientY)}
+                onMouseMove={(e) => {
+                    if (e.buttons === 1) handleWipe(e.clientX, e.clientY);
+                }}
+                onTouchStart={(e) => {
+                    const touch = e.touches[0];
+                    handleWipe(touch.clientX, touch.clientY);
+                }}
+                onTouchMove={(e) => {
+                    const touch = e.touches[0];
+                    handleWipe(touch.clientX, touch.clientY);
+                }}
+                style={{ backdropFilter: isDragging ? 'none' : 'blur(2px)' }}
+            />
 
-            // Mouse Events
-            onMouseDown={(e) => handleWipe(e.clientX, e.clientY)}
-            onMouseMove={(e) => {
-                // Only wipe if primary button is pressed
-                if (e.buttons === 1) handleWipe(e.clientX, e.clientY);
-            }}
-
-            // Touch Events
-            onTouchStart={(e) => {
-                const touch = e.touches[0];
-                handleWipe(touch.clientX, touch.clientY);
-            }}
-            onTouchMove={(e) => {
-                const touch = e.touches[0];
-                handleWipe(touch.clientX, touch.clientY);
-            }}
-
-            // Visual Feel
-            style={{
-                pointerEvents: 'auto',
-                backdropFilter: 'blur(2px)'
-            }}
-        />
+            {/* Guide Hint UI */}
+            {showHint && !isDragging && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 animate-pulse pointer-events-none">
+                    <div className="w-12 h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                        <Hand className="text-white w-6 h-6 animate-wave" />
+                    </div>
+                    <span className="text-white/80 text-sm font-medium bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
+                        화면을 닦아보세요
+                    </span>
+                </div>
+            )}
+        </div>
     );
 }
