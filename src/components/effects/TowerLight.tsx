@@ -37,8 +37,8 @@ export default function TowerLight() {
                 className="absolute z-10 transition-all duration-1000 ease-in-out mix-blend-color-dodge pointer-events-none"
                 style={{
                     /* Coordinates for the Observation Deck Windows - Band Style */
-                    top: '6.2%',    // Vertical position of the deck windows
-                    left: '49.5%',  // Horizontal center
+                    top: '28%',     // Adjusted to sit exactly on the basket
+                    left: '50%',    // Center aligned
                     width: '28px',  // Exact pixel width as requested (Band)
                     height: '5px',  // Thinner Band height (5px)
 

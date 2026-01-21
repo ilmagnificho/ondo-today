@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { GoogleAnalytics } from '@next/third-parties/google';
 import { Inter, Noto_Sans_KR } from "next/font/google";
 import "./globals.css";
 
@@ -18,16 +19,30 @@ const notoSansKR = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Ondo - 오늘의 온도",
-  description: "Experience your city's weather through a cinematic 2.5D view.",
-  keywords: ["weather", "seoul", "cinematic", "mobile", "temperature", "ondo"],
-  authors: [{ name: "Ondo" }],
+  title: "Ondo - 서울의 겨울",
+  description: "실시간 서울 날씨와 감성 비서. 2.5D 시네마틱 뷰로 도시의 분위기를느껴보세요.",
+  keywords: ["날씨", "서울", "겨울", "Ondo", "감성", "여행", "Weather", "Seoul"],
+  authors: [{ name: "Ondo Team" }],
   openGraph: {
-    title: "Ondo - 오늘의 온도",
-    description: "Feel the mood of the weather in your city.",
+    title: "Ondo - 서울의 겨울",
+    description: "현재 서울의 온도와 분위기를 2.5D 디오라마로 경험하세요.",
     url: "https://ondo.today",
     siteName: "Ondo",
+    locale: "ko_KR",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png", // Ensure this image exists in public folder later
+        width: 1200,
+        height: 630,
+        alt: "Ondo - Seoul Winter Diorama",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ondo - 서울의 겨울",
+    description: "실시간 서울 날씨와 감성 비서",
   },
   appleWebApp: {
     capable: true,
@@ -63,6 +78,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         {children}
+        <GoogleAnalytics gaId="G-XXXXXXXXXX" />
       </body>
     </html>
   );

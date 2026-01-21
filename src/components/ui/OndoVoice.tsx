@@ -151,7 +151,7 @@ export default function OndoVoice() {
     if (isHidden) return null;
 
     return (
-        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-sm text-center px-4 transition-all duration-300">
+        <div className="absolute bottom-48 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-sm text-center px-4 transition-all duration-300">
             <div
                 className={`
                     inline-flex items-center gap-2
