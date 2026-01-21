@@ -50,7 +50,7 @@ export default function WeatherInfo() {
         <>
             <>
                 {/* Main Weather Info - Invisible Header Concept */}
-                <div className="absolute top-10 left-6 z-50 animate-fadeIn">
+                <div className="absolute top-10 left-6 z-50 animate-fadeIn pointer-events-none">
                     <div className="flex flex-col gap-0.5">
                         {/* Location - Text Only with Shadow */}
                         <div className="flex items-center gap-2">

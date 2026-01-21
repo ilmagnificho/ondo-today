@@ -54,14 +54,12 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
     const isNight = currentHour >= 20 || currentHour < 6;
 
     return (
-        <div className="absolute bottom-8 left-6 right-6 z-40 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+        <div className="absolute bottom-10 left-6 right-6 z-40 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
             <div className={`
-                glass-card rounded-3xl p-5 
-                flex flex-col gap-4
-                bg-white/10 backdrop-blur-xl border border-white/30
-                shadow-[0_8px_32px_rgba(0,0,0,0.12)]
+                rounded-3xl p-2
+                flex flex-col gap-2
                 transition-all duration-300 ease-out
-                ${isDragging ? 'scale-[1.02] bg-white/20' : 'hover:bg-white/15'}
+                ${isDragging ? 'scale-[1.02]' : ''}
             `}>
                 {/* Header Info */}
                 <div className="flex justify-between items-end px-1">

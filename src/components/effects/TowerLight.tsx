@@ -36,18 +36,17 @@ export default function TowerLight() {
             <div
                 className="absolute z-10 transition-all duration-1000 ease-in-out mix-blend-color-dodge pointer-events-none"
                 style={{
-                    /* Coordinates for the Observation Deck Windows */
+                    /* Coordinates for the Observation Deck Windows - Band Style */
                     top: '6.2%',    // Vertical position of the deck windows
                     left: '49.5%',  // Horizontal center
-                    width: '3.5%',  // Width of the deck
-                    height: '1.2%', // Height of the windows window
+                    width: '28px',  // Exact pixel width as requested (Band)
+                    height: '6px',  // Band height
 
                     transform: 'translate(-50%, 0)',
                     backgroundColor: aqi.color,
-                    opacity: 0.8,
-                    borderRadius: '2px',
-                    boxShadow: `0 0 15px 2px ${aqi.color}`, // Glow spilling out
-                    filter: 'blur(1px)' // Soften edges slightly
+                    opacity: 0.9,
+                    borderRadius: '2px', // Slight rounding
+                    boxShadow: `0 0 12px 2px ${aqi.color}`, // Neon Glow
                 }}
             />
             {/* Main Light Core (Intense center) */}

@@ -33,6 +33,9 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
 
     // Config
     // Opacity logic: Colder = More opaque edges
+    // Trigger frost if temp <= 0 (Relaxed logic)
+    if (temperature > 0) return null;
+
     const frostOpacity = Math.min(0.9, 0.4 + Math.abs(temperature) * 0.05);
     const refreezeSpeed = temperature < -5 ? Math.abs(temperature + 5) * 0.05 : 0;
     const isVeryCold = temperature < -5;
