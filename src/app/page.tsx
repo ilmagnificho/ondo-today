@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import WeatherInfo from '@/components/ui/WeatherInfo';
 import TimeSlider from '@/components/ui/TimeSlider';
 import { useWeatherStore, TimePhase, WeatherCondition } from '@/store/weatherStore';
+import OndoVoice from '@/components/ui/OndoVoice';
 
 // Dynamic import for WeatherView
 const WeatherView = dynamic(() => import('@/components/WeatherView'), {
@@ -56,6 +57,9 @@ export default function Home() {
         onDragEnd={() => setIsTimeTravelDragging(false)}
       />
 
+      {/* Ondo Voice - Contextual Assistant (Above Slider) */}
+      <OndoVoice />
+
       {/* Brand Logo - Bottom Left */}
       <div className="absolute bottom-6 left-6 z-40">
         <h1 className="text-xl font-semibold text-white/90 tracking-tight drop-shadow-lg">
@@ -63,18 +67,6 @@ export default function Home() {
           <span className="text-xs font-light text-white/40 ml-2">Seoul</span>
         </h1>
       </div>
-
-      {/* Subtle Loading Indicator - Center Bottom (above slider) */}
-      {/* Show only when refreshing existing data (not initial load) */}
-      {/* Also hidden during Time Travel to avoid distraction */}
-      {viewingHourOffset === 0 && isLoading && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 animate-fadeIn">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10 shadow-lg">
-            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            <span className="text-[10px] text-white/60 font-medium">Updating...</span>
-          </div>
-        </div>
-      )}
 
       {/* Subtle Loading Indicator - Center Bottom (above slider) */}
       {/* Show only when refreshing existing data (not initial load) */}

@@ -167,15 +167,13 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
             // Removed backdrop-filter: blur(2px)
             />
 
-            {/* Guide Hint UI */}
+            {/* Guide Hint UI - Removed to be replaced by OndoVoice */}
+            {/* Hand icon kept for interaction cue if needed, but text removed as per request */}
             {showHint && !isDragging && (
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 animate-pulse pointer-events-none">
-                    <div className="w-12 h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-3 animate-pulse pointer-events-none opacity-50">
+                    <div className="w-12 h-12 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/10">
                         <Hand className="text-white w-6 h-6 animate-wave" />
                     </div>
-                    <span className="text-white/80 text-sm font-medium bg-black/30 px-4 py-1.5 rounded-full backdrop-blur-sm whitespace-nowrap">
-                        차가운 겨울 공기가 창에 서렸어요.
-                    </span>
                 </div>
             )}
         </div>
