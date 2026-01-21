@@ -24,6 +24,12 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
     const [showHint, setShowHint] = useState(true);
     const isInteractingRef = useRef(false);
     const wipeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const isDraggingRef = useRef(isDragging);
+
+    // Update ref when prop changes
+    useEffect(() => {
+        isDraggingRef.current = isDragging;
+    }, [isDragging]);
 
     // Config
     // Opacity logic: Colder = More opaque edges
@@ -55,15 +61,16 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
             context.globalCompositeOperation = 'source-over';
 
             // Create Radial Gradient (Vignette)
-            // Center (0% - 30%): Transparent
-            // Edges (80% - 100%): Frosty
+            // Center: Completely transparent
+            // Edges: Frosty
             const gradient = context.createRadialGradient(w / 2, h / 2, w * 0.15, w / 2, h / 2, w * 0.7);
-            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.05)'); // Almost clear center
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0)'); // Fully transparent center
             gradient.addColorStop(0.5, `rgba(255, 255, 255, ${frostOpacity * 0.5})`);
             gradient.addColorStop(1, `rgba(255, 255, 255, ${frostOpacity})`);
 
             context.fillStyle = gradient;
             context.fillRect(0, 0, w, h);
+
 
             // Add Noise (Ice Crystals) - Concentrated on edges
             context.fillStyle = 'rgba(255, 255, 255, 0.15)';
@@ -83,7 +90,7 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
 
         // Refreezing Loop
         const loop = () => {
-            if (isVeryCold && !isInteractingRef.current && !isDragging) {
+            if (isVeryCold && !isInteractingRef.current && !isDraggingRef.current) {
                 // Slower refreeze for vignette style to keep center clear longer
                 if (Math.random() > 0.6) {
                     ctx.globalCompositeOperation = 'source-over';
@@ -103,7 +110,7 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
             window.removeEventListener('resize', initFrost);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [temperature, frostOpacity, refreezeSpeed, isVeryCold, isDragging]);
+    }, [temperature, frostOpacity, refreezeSpeed, isVeryCold]); // Removed isDragging
 
     // Interaction Handlers
     const handleWipe = (clientX: number, clientY: number) => {
