@@ -86,7 +86,7 @@ export default function Scene3D() {
             spline.emitEvent('mouseDown', `weather-${condition}`);
 
             // Individual effect triggers
-            if (condition === 'night') {
+            if (!weather.isDay) {
                 spline.emitEvent('mouseDown', 'lights-on');
             } else {
                 spline.emitEvent('mouseDown', 'lights-off');
@@ -121,8 +121,15 @@ export default function Scene3D() {
             transition: 'all 1.5s ease-in-out',
         };
 
+        if (!weather.isDay) {
+            return {
+                ...baseStyle,
+                background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.3) 100%)',
+            };
+        }
+
         switch (weather.condition) {
-            case 'sunny':
+            case 'clear':
                 return {
                     ...baseStyle,
                     background: 'radial-gradient(circle at 80% 20%, rgba(255, 236, 179, 0.25) 0%, transparent 50%)',
@@ -132,15 +139,10 @@ export default function Scene3D() {
                     ...baseStyle,
                     background: 'linear-gradient(180deg, rgba(71, 85, 105, 0.4) 0%, rgba(71, 85, 105, 0.2) 100%)',
                 };
-            case 'night':
-                return {
-                    ...baseStyle,
-                    background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, rgba(30, 41, 59, 0.3) 100%)',
-                };
             default:
                 return baseStyle;
         }
-    }, [weather.condition]);
+    }, [weather.condition, weather.isDay]);
 
     // Fallback UI when Spline fails to load
     const FallbackScene = () => (
@@ -211,7 +213,7 @@ export default function Scene3D() {
             {weather.condition === 'rain' && (isLoaded || loadError) && <CityRainEffect />}
 
             {/* Night stars effect */}
-            {weather.condition === 'night' && (isLoaded || loadError) && <NightSkyEffect />}
+            {!weather.isDay && (isLoaded || loadError) && <NightSkyEffect />}
 
             {/* City info badge */}
             {isLoaded && (

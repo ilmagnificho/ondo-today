@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { WeatherCondition, CityConfig } from '@/lib/types';
 
 /**
  * Weather Store v2 - Living Diorama with Time Travel
@@ -10,8 +11,8 @@ import { create } from 'zustand';
  * - viewingTime state separate from realTime
  */
 
-// Types
-export type WeatherCondition = 'clear' | 'clouds' | 'rain' | 'snow' | 'atmosphere';
+// Types - Use shared types from lib/types
+export type { WeatherCondition } from '@/lib/types';
 export type TimePhase = 'night' | 'dawn' | 'day' | 'dusk';
 export type AqiLevel = 'good' | 'moderate' | 'unhealthy' | 'hazardous';
 
@@ -67,15 +68,16 @@ export interface SunData {
 
 // Store state interface
 interface WeatherStore {
-    // Real-time data
+    // State
     weather: WeatherData;
     location: LocationData;
     sun: SunData;
     aqi: AqiData;
     forecast: HourlyForecast[];
+    currentCityId: string; // Added for Scene3D compatibility
 
     // Time Travel feature
-    viewingHourOffset: number;  // 0 = now, 1 = +1hr, etc.
+    viewingHourOffset: number;
     viewingData: {
         weather: WeatherData;
         sun: SunData;
@@ -89,6 +91,7 @@ interface WeatherStore {
 
     // Actions
     setLoading: (isLoading: boolean) => void;
+    setCityId: (id: string) => void; // Added action
     toggleDebugMode: () => void;
     fetchWeather: (city?: string) => Promise<void>;
 
@@ -138,6 +141,7 @@ export const useWeatherStore = create<WeatherStore>((set, get) => ({
     sun: DEFAULT_SUN,
     aqi: DEFAULT_AQI,
     forecast: [],
+    currentCityId: 'seoul', // Default city
     viewingHourOffset: 0,
     viewingData: {
         weather: DEFAULT_WEATHER,
@@ -149,6 +153,7 @@ export const useWeatherStore = create<WeatherStore>((set, get) => ({
     lastUpdated: null,
 
     setLoading: (isLoading) => set({ isLoading }),
+    setCityId: (id) => set({ currentCityId: id }),
     toggleDebugMode: () => set((state) => ({ isDebugMode: !state.isDebugMode })),
 
     fetchWeather: async (city = 'Seoul') => {

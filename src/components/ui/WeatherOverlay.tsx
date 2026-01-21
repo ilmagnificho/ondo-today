@@ -2,40 +2,57 @@
 
 import { useWeatherStore } from '@/store/weatherStore';
 import { WeatherCondition } from '@/lib/types';
-import { Sun, CloudRain, Moon, Bug, ChevronRight, RefreshCw, MapPin } from 'lucide-react';
+import { Sun, CloudRain, Moon, Cloud, Snowflake, Wind, Bug, RefreshCw, MapPin } from 'lucide-react';
 import { useState } from 'react';
 
 // Weather icon mapping
-const WeatherIcon = ({ condition }: { condition: WeatherCondition }) => {
+const WeatherIcon = ({ condition, isDay }: { condition: WeatherCondition, isDay: boolean }) => {
     const iconProps = { size: 28, strokeWidth: 1.5 };
 
+    // Handle Night/Day logic visually
+    if (!isDay && condition === 'clear') {
+        return <Moon {...iconProps} className="text-indigo-300" />;
+    }
+
     switch (condition) {
-        case 'sunny':
+        case 'clear':
+        case 'sunny': // Legacy support
             return <Sun {...iconProps} className="text-yellow-400" />;
+        case 'clouds':
+            return <Cloud {...iconProps} className="text-gray-300" />;
         case 'rain':
             return <CloudRain {...iconProps} className="text-blue-400" />;
-        case 'night':
-            return <Moon {...iconProps} className="text-indigo-300" />;
+        case 'snow':
+            return <Snowflake {...iconProps} className="text-cyan-200" />;
+        case 'atmosphere':
+        case 'night': // Legacy support (though handled by isDay)
+            return <Wind {...iconProps} className="text-slate-400" />;
+        default:
+            return <Sun {...iconProps} className="text-yellow-400" />;
     }
 };
 
 // Weather condition labels in Korean
 const CONDITION_LABELS: Record<WeatherCondition, string> = {
-    sunny: '맑음',
+    clear: '맑음',
+    clouds: '흐림',
     rain: '비',
+    snow: '눈',
+    atmosphere: '안개/먼지',
+    sunny: '맑음',
     night: '밤',
 };
 
 export default function WeatherOverlay() {
     const {
         weather,
+        location, // Add location here
         isDebugMode,
         isLoading,
         error,
         toggleDebugMode,
-        cycleWeather,
         setCondition,
-        fetchRealWeather
+        fetchWeather
     } = useWeatherStore();
 
     const [locationInput, setLocationInput] = useState('');
@@ -43,10 +60,15 @@ export default function WeatherOverlay() {
     // Handle location search
     const handleLocationSearch = () => {
         if (locationInput.trim()) {
-            fetchRealWeather(locationInput.trim());
+            // Use fetchWeather type-casted to allow string arg if the store signature supports it
+            // Based on store definition: fetchWeather: (city?: string) => Promise<void>
+            fetchWeather(locationInput.trim());
             setLocationInput('');
         }
     };
+
+    // Filter relevant conditions for debug buttons (exclude legacy/duplicate)
+    const DEBUG_CONDITIONS: WeatherCondition[] = ['clear', 'clouds', 'rain', 'snow', 'atmosphere'];
 
     return (
         <>
@@ -62,18 +84,18 @@ export default function WeatherOverlay() {
                         <div className="text-red-300 text-sm">{error}</div>
                     ) : (
                         <div className="flex items-center gap-4">
-                            <WeatherIcon condition={weather.condition} />
+                            <WeatherIcon condition={weather.condition} isDay={weather.isDay !== undefined ? weather.isDay : true} />
                             <div>
                                 <h2 className="text-lg font-semibold text-white/90 flex items-center gap-1">
                                     <MapPin size={14} className="text-white/60" />
-                                    {weather.location}
+                                    {location.name || 'Unknown Location'}
                                 </h2>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-3xl font-light text-white">
                                         {weather.temperature}°C
                                     </span>
                                     <span className="text-sm text-white/60">
-                                        {weather.description || CONDITION_LABELS[weather.condition]}
+                                        {weather.conditionText || CONDITION_LABELS[weather.condition]}
                                     </span>
                                 </div>
                             </div>
@@ -84,7 +106,7 @@ export default function WeatherOverlay() {
 
             {/* Refresh Button */}
             <button
-                onClick={() => fetchRealWeather(weather.location)}
+                onClick={() => fetchWeather(location.name)}
                 disabled={isLoading}
                 className="absolute top-6 right-20 z-10 glass-button p-3 rounded-full 
                    hover:bg-white/20 transition-all duration-300 disabled:opacity-50"
@@ -130,12 +152,12 @@ export default function WeatherOverlay() {
                     </div>
 
                     {/* Weather Condition Buttons */}
-                    <div className="flex gap-2">
-                        {(['sunny', 'rain', 'night'] as WeatherCondition[]).map((condition) => (
+                    <div className="flex gap-2 flex-wrap max-w-[200px] justify-end">
+                        {DEBUG_CONDITIONS.map((condition) => (
                             <button
                                 key={condition}
                                 onClick={() => setCondition(condition)}
-                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all
+                                className={`px-2 py-1 rounded-lg text-xs font-medium transition-all
                   ${weather.condition === condition
                                         ? 'bg-white/30 text-white'
                                         : 'bg-white/10 text-white/60 hover:bg-white/20'
@@ -145,14 +167,6 @@ export default function WeatherOverlay() {
                             </button>
                         ))}
                     </div>
-                    <button
-                        onClick={cycleWeather}
-                        className="mt-2 w-full flex items-center justify-center gap-1 px-3 py-1.5 
-                       rounded-lg bg-white/10 text-white/60 hover:bg-white/20 
-                       text-sm transition-all"
-                    >
-                        Cycle <ChevronRight size={14} />
-                    </button>
                 </div>
             )}
 

@@ -1,5 +1,13 @@
 // Weather condition types for the Ondo weather service
-export type WeatherCondition = 'sunny' | 'rain' | 'night';
+// Syncing with weatherStore.ts types + legacy types
+export type WeatherCondition =
+  | 'clear'
+  | 'clouds'
+  | 'rain'
+  | 'snow'
+  | 'atmosphere'
+  | 'sunny' // Legacy support
+  | 'night'; // Legacy support
 
 // Weather data structure
 export interface WeatherData {
@@ -41,33 +49,57 @@ export interface WeatherVisuals {
   buildingEmission?: boolean;  // For night mode - windows glow
   streetLights?: boolean;      // For night mode
   rainIntensity?: number;      // 0-1 scale for rain
+  snowIntensity?: number;      // 0-1 scale for snow
 }
 
 // Weather visuals mapping
 export const WEATHER_VISUALS: Record<WeatherCondition, WeatherVisuals> = {
-  sunny: {
+  // Main types
+  clear: {
     lightIntensity: 1.0,
-    ambientColor: '#FFE4B5', // Warm golden
+    ambientColor: '#FFE4B5',
     particleEffect: false,
-    buildingEmission: false,
-    streetLights: false,
+    rainIntensity: 0,
+  },
+  clouds: {
+    lightIntensity: 0.7,
+    ambientColor: '#d1d8e0', // Light gray
+    particleEffect: false,
     rainIntensity: 0,
   },
   rain: {
     lightIntensity: 0.5,
-    ambientColor: '#708090', // Slate gray
+    ambientColor: '#708090',
     particleEffect: true,
-    buildingEmission: false,
-    streetLights: false,
     rainIntensity: 0.8,
+  },
+  snow: {
+    lightIntensity: 0.8, // Snow reflects light
+    ambientColor: '#f1f2f6', // White-ish
+    particleEffect: true,
+    rainIntensity: 0,
+    snowIntensity: 0.7,
+  },
+  atmosphere: {
+    lightIntensity: 0.5,
+    ambientColor: '#a5b1c2', // Hazy
+    particleEffect: false,
+    rainIntensity: 0,
+  },
+
+  // Legacy / Alias mapping
+  sunny: {
+    lightIntensity: 1.0,
+    ambientColor: '#FFE4B5',
+    particleEffect: false,
+    rainIntensity: 0,
   },
   night: {
     lightIntensity: 0.3,
-    ambientColor: '#1a1a2e', // Dark blue
+    ambientColor: '#1a1a2e',
     particleEffect: false,
-    buildingEmission: true,  // Windows light up
-    streetLights: true,      // Street lamps on
+    buildingEmission: true,
+    streetLights: true,
     rainIntensity: 0,
   },
 };
-

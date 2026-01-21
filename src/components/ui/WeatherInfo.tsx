@@ -35,6 +35,8 @@ const CONDITION_LABELS: Record<WeatherCondition, string> = {
     rain: '비',
     snow: '눈',
     atmosphere: '안개',
+    sunny: '맑음',
+    night: '밤',
 };
 
 export default function WeatherInfo() {
