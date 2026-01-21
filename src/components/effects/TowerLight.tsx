@@ -40,12 +40,12 @@ export default function TowerLight() {
                     top: '6.2%',    // Vertical position of the deck windows
                     left: '49.5%',  // Horizontal center
                     width: '28px',  // Exact pixel width as requested (Band)
-                    height: '6px',  // Band height
+                    height: '5px',  // Thinner Band height (5px)
 
                     transform: 'translate(-50%, 0)',
                     backgroundColor: aqi.color,
                     opacity: 0.9,
-                    borderRadius: '2px', // Slight rounding
+                    borderRadius: '1px', // Sharper rounding
                     boxShadow: `0 0 12px 2px ${aqi.color}`, // Neon Glow
                 }}
             />

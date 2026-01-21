@@ -85,9 +85,9 @@ export async function GET(request: Request) {
     const location = searchParams.get('location') || 'Seoul';
 
     try {
-        // Fetch forecast with AQI data (days=2 for 24h+ coverage)
+        // Fetch forecast with AQI data (days=3 for secure 24h+ coverage)
         const response = await fetch(
-            `${WEATHER_API_BASE}/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&days=2&aqi=yes`,
+            `${WEATHER_API_BASE}/forecast.json?key=${WEATHER_API_KEY}&q=${encodeURIComponent(location)}&days=3&aqi=yes`,
             { next: { revalidate: 300 } }
         );
 
@@ -96,16 +96,18 @@ export async function GET(request: Request) {
         }
 
         const data = await response.json();
+        console.log(`[API] Forecast fetched. Days: ${data.forecast.forecastday.length}`);
 
         // Parse current time
         const localtime = new Date(data.location.localtime);
         const currentHour = localtime.getHours();
         const currentSunData = calculateSunData(currentHour);
 
-        // Extract 24-hour forecast starting from current hour
+        // Extract 48-hour forecast starting from current hour
         const allHours = [
             ...(data.forecast.forecastday[0]?.hour || []),
             ...(data.forecast.forecastday[1]?.hour || []),
+            ...(data.forecast.forecastday[2]?.hour || []),
         ];
 
         const currentHourIndex = allHours.findIndex((h: { time: string }) => {
@@ -113,6 +115,7 @@ export async function GET(request: Request) {
             return hourTime >= localtime;
         });
 
+        // Slice next 24 hours
         const next24Hours = allHours.slice(
             Math.max(0, currentHourIndex),
             Math.max(0, currentHourIndex) + 24
@@ -123,6 +126,9 @@ export async function GET(request: Request) {
             is_day: number;
             chance_of_rain: number;
             chance_of_snow: number;
+            humidity: number;
+            wind_kph: number;
+            feelslike_c: number;
         }) => {
             const hourDate = new Date(h.time);
             const hour = hourDate.getHours();
@@ -137,6 +143,9 @@ export async function GET(request: Request) {
                 isDay: h.is_day === 1,
                 chanceOfRain: h.chance_of_rain,
                 chanceOfSnow: h.chance_of_snow,
+                humidity: h.humidity,
+                windKph: h.wind_kph,
+                feelsLike: h.feelslike_c,
                 sun: sunData,
             };
         });

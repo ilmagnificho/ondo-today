@@ -54,7 +54,7 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
     const isNight = currentHour >= 20 || currentHour < 6;
 
     return (
-        <div className="absolute bottom-10 left-6 right-6 z-40 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+        <div className="absolute bottom-12 left-6 right-6 z-40 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
             <div className={`
                 rounded-3xl p-2
                 flex flex-col gap-2

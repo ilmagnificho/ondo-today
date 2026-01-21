@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useWeatherStore } from '@/store/weatherStore';
-import { Hand, Snowflake, Umbrella, Wind, Sun, CloudFog, PartyPopper, Coffee } from 'lucide-react';
+import { Hand, Snowflake, Umbrella, Wind, Sun, CloudFog, PartyPopper, Coffee, ThermometerSun } from 'lucide-react';
 
 // Icon mapping type
 type WeatherIcon = React.ElementType;
@@ -15,30 +15,32 @@ interface VoiceContent {
 
 const MESSAGES = {
     intro: {
-        text: "차가운 겨울 공기가 창에 서렸어요.",
+        text: "창문에 성에가 꼈네요. 터치해서 닦아보세요.",
         Icon: Hand
     },
+    windy: [
+        { text: "바람이 매섭습니다. 옷깃을 여미세요.", Icon: Wind },
+        { text: "실제 온도보다 훨씬 춥게 느껴져요.", Icon: Wind }
+    ],
     freezing: [
-        { text: "옷 따뜻하게 입으세요. 엄청 추워요!", Icon: Snowflake },
-        { text: "길이 미끄러울 수 조심하세요.", Icon: Wind },
-        { text: "따뜻한 패딩이 필수인 날씨예요.", Icon: Snowflake }
+        { text: "살을 에는 추위네요. 방한용품 필수!", Icon: Snowflake },
+        { text: "길이 미끄러우니 조심하세요.", Icon: Snowflake }
     ],
     cold: [
-        { text: "쌀쌀하네요. 감기 조심하세요.", Icon: Wind },
+        { text: "바람 때문에 실제보다 훨씬 추워요.", Icon: ThermometerSun },
         { text: "따뜻한 코코아 한 잔 어때요?", Icon: Coffee }
     ],
     rain: [
-        { text: "우산 챙기셨나요?", Icon: Umbrella },
-        { text: "빗길 운전 조심하세요.", Icon: Umbrella }
+        { text: "우산 챙기셨나요? 빗길 조심하세요.", Icon: Umbrella },
+        { text: "도로가 미끄러울 수 있어요.", Icon: Umbrella }
     ],
     snow: [
         { text: "눈이 오네요! 낭만적이지만 미끄러워요.", Icon: Snowflake },
         { text: "눈사람 만들기 좋은 날씨!", Icon: Snowflake }
     ],
     badAir: [
-        { text: "마스크 꼭 챙기세요!", Icon: CloudFog, color: "text-yellow-400" },
-        { text: "남산이 뿌옇네요. 공기가 안 좋아요.", Icon: CloudFog },
-        { text: "야외 활동은 자제하는 게 좋아요.", Icon: CloudFog }
+        { text: "공기가 탁해요. 마스크를 꼭 챙기세요.", Icon: CloudFog, color: "text-yellow-400" },
+        { text: "미세먼지가 심하니 야외 활동은 자제하세요.", Icon: CloudFog }
     ],
     goodAir: [
         { text: "남산이 초록색이네요! (공기 좋음)", Icon: PartyPopper, color: "text-green-400" },
@@ -52,77 +54,104 @@ const MESSAGES = {
 };
 
 export default function OndoVoice() {
-    const { viewingData, weather } = useWeatherStore();
+    const { viewingData, aqi } = useWeatherStore();
     const [content, setContent] = useState<VoiceContent>(MESSAGES.intro);
     const [isFading, setIsFading] = useState(false);
     const [isIntro, setIsIntro] = useState(true);
+    const [isHidden, setIsHidden] = useState(false); // Hide on interaction
 
-    // Context Analysis
+    // Smart Context Analysis
     const getContextContent = (): VoiceContent[] => {
         let options = [...MESSAGES.default];
 
-        // Temperature
-        if (viewingData.weather.temperature <= -5) {
+        const { temperature, feelsLike, windKph, condition } = viewingData.weather;
+
+        // Wind Warning
+        if (windKph > 20) {
+            options = [...MESSAGES.windy, ...options];
+        }
+
+        // Extreme Cold
+        if (temperature < -10) {
             options = [...MESSAGES.freezing, ...options];
-        } else if (viewingData.weather.temperature <= 5) {
+        }
+
+        // Wind Chill Factor (Feels like is significantly lower)
+        if (feelsLike < temperature - 3) {
             options = [...MESSAGES.cold, ...options];
         }
 
+        // AQI Logic
+        if (aqi.index >= 3) { // 3=Unhealthy
+            options = [...MESSAGES.badAir, ...options];
+        }
+
         // Condition
-        const condition = viewingData.weather.condition;
         if (condition === 'rain') {
             options = [...MESSAGES.rain, ...options];
         } else if (condition === 'snow') {
             options = [...MESSAGES.snow, ...options];
         }
 
-        // AQI Logic (Mock logic based on realistic assumption or store if available)
-        // Here assuming if Namsan is visible clearly it's good, otherwise checking some store val.
-        // Since we don't have explicit AQI purely in viewingData weather object easily accessible mapped to 'bad',
-        // we'll rely on randomization for demo or default. 
-        // *Improvement: If store had explicit AQI status, we'd use it.*
-
         return options;
     };
 
+    // Update voice when viewingData changes (Dynamically react to slider)
     useEffect(() => {
-        // Intro Phase: Show Hand Wave for 5 seconds
+        if (isIntro || isHidden) return;
+
+        setIsFading(true);
+        const timeout = setTimeout(() => {
+            const options = getContextContent();
+            const next = options[Math.floor(Math.random() * options.length)];
+            setContent(next);
+            setIsFading(false);
+        }, 300); // Fast transition
+
+        return () => clearTimeout(timeout);
+    }, [viewingData.weather.temperature, viewingData.weather.condition, isIntro, isHidden]);
+
+    // Cleanup Intro
+    useEffect(() => {
         const introTimer = setTimeout(() => {
-            setIsFading(true);
-            setTimeout(() => {
-                setIsIntro(false); // End intro state
-
-                // Load first rotation
-                const options = getContextContent();
-                setContent(options[Math.floor(Math.random() * options.length)]);
-                setIsFading(false);
-            }, 500);
+            if (isIntro) {
+                setIsFading(true);
+                setTimeout(() => {
+                    setIsIntro(false);
+                }, 500);
+            }
         }, 5000);
-
         return () => clearTimeout(introTimer);
-    }, []);
+    }, [isIntro]);
 
+    // Interaction Listener: Listen for "wipe" events (using a custom event or check pointer?)
+    // For now, let's rely on simple pointer events on window or specific components if possible.
+    // Or we can assume ANY click on the screen means interaction if we use a global listener, 
+    // but better to just let the user click THIS component to dismiss, OR use the FrostOverlay's interaction.
+    // Since FrostOverlay handles the wipe, we can listen for a global custom event 'frost-wipe' if we implemented it, 
+    // or just listen for generic touch/mousedown globally.
     useEffect(() => {
-        if (isIntro) return; // Don't rotate during intro
+        const handleInteraction = () => {
+            // If intro is still active, hide it immediately on first touch (as per request)
+            if (isIntro) {
+                setIsIntro(false);
+            }
+        };
 
-        const rotate = setInterval(() => {
-            setIsFading(true);
-            setTimeout(() => {
-                const options = getContextContent();
-                // Avoid picking the exact same message if possible (simple check)
-                const next = options[Math.floor(Math.random() * options.length)];
-                setContent(next);
-                setIsFading(false);
-            }, 500);
-        }, 6000); // 6s rotation
-
-        return () => clearInterval(rotate);
-    }, [isIntro, viewingData]);
+        window.addEventListener('mousedown', handleInteraction);
+        window.addEventListener('touchstart', handleInteraction);
+        return () => {
+            window.removeEventListener('mousedown', handleInteraction);
+            window.removeEventListener('touchstart', handleInteraction);
+        };
+    }, [isIntro]);
 
     const IconComponent = content.Icon;
 
+    if (isHidden) return null;
+
     return (
-        <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-sm text-center px-4">
+        <div className="absolute bottom-32 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-full max-w-sm text-center px-4 transition-all duration-300">
             <div
                 className={`
                     inline-flex items-center gap-2

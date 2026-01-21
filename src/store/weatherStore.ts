@@ -26,6 +26,9 @@ export interface HourlyForecast {
     isDay: boolean;
     chanceOfRain: number;
     chanceOfSnow: number;
+    humidity: number;
+    windKph: number;
+    feelsLike: number;
     sun: {
         position: number;
         phase: TimePhase;
@@ -81,6 +84,7 @@ interface WeatherStore {
     viewingData: {
         weather: WeatherData;
         sun: SunData;
+        dateStr?: string; // For syncing date display
     };
 
     // UI State
@@ -146,6 +150,7 @@ export const useWeatherStore = create<WeatherStore>((set, get) => ({
     viewingData: {
         weather: DEFAULT_WEATHER,
         sun: DEFAULT_SUN,
+        dateStr: undefined,
     },
     isLoading: true,
     isDebugMode: false,
@@ -237,12 +242,16 @@ export const useWeatherStore = create<WeatherStore>((set, get) => ({
                         condition: forecastItem.condition,
                         conditionText: forecastItem.conditionText,
                         isDay: forecastItem.isDay,
+                        humidity: forecastItem.humidity,
+                        windKph: forecastItem.windKph,
+                        feelsLike: forecastItem.feelsLike,
                     },
                     sun: {
                         position: forecastItem.sun.position,
                         phase: forecastItem.sun.phase,
                         hour: forecastItem.hour,
                     },
+                    dateStr: forecastItem.time, // Syncing date string from forecast
                 },
             });
         }
