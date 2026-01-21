@@ -58,17 +58,18 @@ export default function WeatherInfo() {
                     shadow-2xl shadow-black/10
                     min-w-[160px]
                 ">
-                    {isLoading ? (
+                    {/* Show loading only if no data has ever been loaded */}
+                    {isLoading && !formattedDate ? (
                         <LoadingState />
                     ) : (
                         <div className="flex flex-col gap-1">
                             {/* Location */}
                             <div className="flex items-center gap-2">
-                                <span className="text-white/80 text-sm font-medium tracking-wide">
+                                <span className="text-white/90 text-sm font-semibold tracking-wide drop-shadow-sm">
                                     {location.name}
                                 </span>
                                 {viewingHourOffset > 0 && (
-                                    <span className="text-amber-400/80 text-xs font-medium px-1.5 py-0.5 bg-amber-500/20 rounded-full">
+                                    <span className="text-amber-400 text-[10px] font-bold px-2 py-0.5 bg-amber-950/40 border border-amber-500/30 rounded-full">
                                         +{viewingHourOffset}h
                                     </span>
                                 )}
@@ -76,7 +77,7 @@ export default function WeatherInfo() {
 
                             {/* Temperature */}
                             <div className="flex items-start gap-3 mt-1">
-                                <span className="text-5xl font-extralight text-white tracking-tighter leading-none">
+                                <span className="text-6xl font-thin text-white tracking-tighter leading-none drop-shadow-md">
                                     {displayWeather.temperature}°
                                 </span>
                             </div>
@@ -87,13 +88,13 @@ export default function WeatherInfo() {
                                     condition={displayWeather.condition}
                                     isDay={displayWeather.isDay}
                                 />
-                                <span className="text-white/70 text-sm">
+                                <span className="text-white/80 text-sm font-medium">
                                     {displayWeather.conditionText || CONDITION_LABELS[displayWeather.condition]}
                                 </span>
                             </div>
 
                             {/* Date */}
-                            <div className="text-white/40 text-xs mt-2 font-light">
+                            <div className="text-white/50 text-xs mt-2 font-medium">
                                 {formattedDate}
                             </div>
                         </div>
@@ -102,34 +103,32 @@ export default function WeatherInfo() {
             </div>
 
             {/* Details Card - Top Right */}
-            {!isLoading && (
-                <div className="absolute top-8 right-6 z-50 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
-                    <div className="
-                        backdrop-blur-xl bg-white/5 
+            <div className="absolute top-8 right-6 z-50 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+                <div className="
+                        backdrop-blur-xl bg-black/10 
                         border border-white/10 
                         rounded-2xl 
-                        px-4 py-3
+                        px-5 py-3 
                         shadow-lg shadow-black/5
                     ">
-                        <div className="flex gap-4 text-xs text-white/50">
-                            <div className="flex flex-col items-center">
-                                <span className="text-white/70 text-sm font-light">{weather.feelsLike}°</span>
-                                <span>체감</span>
-                            </div>
-                            <div className="w-px bg-white/10" />
-                            <div className="flex flex-col items-center">
-                                <span className="text-white/70 text-sm font-light">{weather.humidity}%</span>
-                                <span>습도</span>
-                            </div>
-                            <div className="w-px bg-white/10" />
-                            <div className="flex flex-col items-center">
-                                <span className="text-white/70 text-sm font-light">{Math.round(weather.windKph)}</span>
-                                <span>km/h</span>
-                            </div>
+                    <div className="flex gap-6 text-xs text-white/60"> {/* Increased gap */}
+                        <div className="flex flex-col items-center gap-1">
+                            <span className="text-white/90 text-sm font-medium">{weather.feelsLike}°</span> {/* Bolder */}
+                            <span>체감</span>
+                        </div>
+                        <div className="w-px bg-white/10 h-8 self-center" />
+                        <div className="flex flex-col items-center gap-1">
+                            <span className="text-white/90 text-sm font-medium">{weather.humidity}%</span>
+                            <span>습도</span>
+                        </div>
+                        <div className="w-px bg-white/10 h-8 self-center" />
+                        <div className="flex flex-col items-center gap-1">
+                            <span className="text-white/90 text-sm font-medium">{Math.round(weather.windKph)}</span>
+                            <span>풍속</span>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
         </>
     );
 }

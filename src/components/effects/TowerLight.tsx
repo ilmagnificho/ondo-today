@@ -60,9 +60,9 @@ export default function TowerLight() {
                 }}
             />
 
-            {/* AQI Badge - Small indicator bottom-left */}
+            {/* AQI Badge - Moved to Top Left to avoid collision */}
             <div
-                className="absolute bottom-28 right-6 z-50 
+                className="absolute top-[180px] left-6 z-50 
                     backdrop-blur-xl bg-black/30 border border-white/10 
                     rounded-xl px-3 py-2 flex items-center gap-2
                     shadow-lg shadow-black/10 transition-colors duration-500"

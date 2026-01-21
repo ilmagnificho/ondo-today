@@ -179,7 +179,7 @@ export const useWeatherStore = create<WeatherStore>((set, get) => ({
                 windKph: data.current.windKph,
             };
 
-            set({
+            set((state) => ({
                 weather: weatherData,
                 location: {
                     name: data.location.name,
@@ -194,14 +194,15 @@ export const useWeatherStore = create<WeatherStore>((set, get) => ({
                 },
                 aqi: data.aqi,
                 forecast: data.forecast,
-                viewingHourOffset: 0,
-                viewingData: {
+                // Only reset viewing data if we are NOT in time travel mode
+                viewingHourOffset: state.viewingHourOffset,
+                viewingData: state.viewingHourOffset === 0 ? {
                     weather: weatherData,
                     sun: data.sun,
-                },
+                } : state.viewingData, // Keep existing viewing data if traveling
                 isLoading: false,
                 lastUpdated: new Date(),
-            });
+            }));
         } catch (error) {
             console.error('Weather fetch error:', error);
             set({

@@ -88,9 +88,9 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
                 </div>
 
                 {/* Slider Control */}
-                <div className="relative h-12 flex items-center">
+                <div className="relative h-16 flex items-center"> {/* Increased height for touch */}
                     {/* Track Background */}
-                    <div className="absolute w-full h-1 bg-white/20 rounded-full overflow-hidden">
+                    <div className="absolute w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
                         {/* Progress Bar */}
                         <div
                             className="h-full bg-gradient-to-r from-blue-400 to-white transition-all duration-100"
@@ -131,13 +131,13 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
 
                     {/* Custom Thumb Handle (Visual Only - follows state) */}
                     <div
-                        className="absolute w-6 h-6 bg-white rounded-full shadow-lg border-2 border-blue-50 pointer-events-none transition-all duration-100 ease-out flex items-center justify-center"
+                        className="absolute w-8 h-8 bg-white rounded-full shadow-lg border-2 border-blue-50 pointer-events-none transition-all duration-100 ease-out flex items-center justify-center"
                         style={{
                             left: `${(viewingHourOffset / max) * 100}%`,
                             transform: 'translateX(-50%)',
                         }}
                     >
-                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                        <div className="w-2 h-2 bg-blue-500 rounded-full" />
                     </div>
                 </div>
             </div>

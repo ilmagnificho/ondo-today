@@ -110,10 +110,12 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
             window.removeEventListener('resize', initFrost);
             cancelAnimationFrame(animationFrameId);
         };
-    }, [temperature, frostOpacity, refreezeSpeed, isVeryCold]); // Removed isDragging
+        // Removed temperature dependent props to prevent canvas reset
+    }, []);
 
     // Interaction Handlers
     const handleWipe = (clientX: number, clientY: number) => {
+        // ... (keep existing handleWipe logic)
         // Hide hint on first interaction
         if (showHint) setShowHint(false);
 
@@ -162,7 +164,7 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
                     const touch = e.touches[0];
                     handleWipe(touch.clientX, touch.clientY);
                 }}
-                style={{ backdropFilter: isDragging ? 'none' : 'blur(2px)' }}
+            // Removed backdrop-filter: blur(2px)
             />
 
             {/* Guide Hint UI */}

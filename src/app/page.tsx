@@ -28,6 +28,7 @@ export default function Home() {
     setCondition,
     viewingData,
     viewingHourOffset,
+    isLoading,
   } = useWeatherStore();
 
   const [isTimeTravelDragging, setIsTimeTravelDragging] = useState(false);
@@ -38,13 +39,13 @@ export default function Home() {
 
     // Auto-refresh every 5 minutes
     const interval = setInterval(() => {
-      if (!isDebugMode && viewingHourOffset === 0) {
+      if (!isDebugMode) {
         fetchWeather('Seoul');
       }
     }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [fetchWeather, isDebugMode, viewingHourOffset]);
+  }, [fetchWeather, isDebugMode]); // Removed viewingHourOffset dependency
 
   return (
     <main className="relative w-screen h-[100dvh] overflow-hidden">
@@ -139,6 +140,17 @@ export default function Home() {
             <p>Phase: {viewingData.sun.phase} | Hour: {viewingData.sun.hour}</p>
             <p>Sun Position: {viewingData.sun.position.toFixed(1)}%</p>
             <p>Time Offset: +{viewingHourOffset}h</p>
+          </div>
+        </div>
+      )}
+
+      {/* Subtle Loading Indicator - Center Bottom (above slider) */}
+      {/* Show only when refreshing existing data (not initial load) */}
+      {viewingHourOffset === 0 && (
+        <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-40 transition-opacity duration-300 ${isLoading ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10">
+            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="text-[10px] text-white/60 font-medium">Updating...</span>
           </div>
         </div>
       )}

@@ -55,7 +55,7 @@ export default function WeatherView({ isDragging = false }: WeatherViewProps) {
                 if (weather.condition === 'rain' || weather.condition === 'clouds') {
                     return 'brightness(0.85) contrast(1.05) saturate(0.9)';
                 }
-                return 'brightness(1.05) contrast(1.02) saturate(1.1)';
+                return 'none'; // Crisp visuals for clear days
         }
     }, [sun.phase, weather.condition]);
 
