@@ -52,11 +52,12 @@ export default function WeatherInfo() {
             <div className="absolute top-8 left-6 z-50 animate-fadeIn">
                 <div className="
                     backdrop-blur-2xl bg-white/10 
-                    border border-white/20 
+                    border border-white/30 
                     rounded-3xl 
                     px-6 py-5
-                    shadow-2xl shadow-black/10
-                    min-w-[160px]
+                    shadow-[0_8px_32px_rgba(0,0,0,0.1)] 
+                    min-w-[180px]
+                    transition-all duration-300
                 ">
                     {/* Show loading only if no data has ever been loaded */}
                     {isLoading && !formattedDate ? (
@@ -76,8 +77,8 @@ export default function WeatherInfo() {
                             </div>
 
                             {/* Temperature */}
-                            <div className="flex items-start gap-3 mt-1">
-                                <span className="text-6xl font-thin text-white tracking-tighter leading-none drop-shadow-md">
+                            <div className="flex items-start gap-3 mt-2">
+                                <span className="text-7xl font-light text-white tracking-tighter leading-none drop-shadow-xl filter">
                                     {displayWeather.temperature}°
                                 </span>
                             </div>
@@ -105,11 +106,11 @@ export default function WeatherInfo() {
             {/* Details Card - Top Right */}
             <div className="absolute top-8 right-6 z-50 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                 <div className="
-                        backdrop-blur-xl bg-black/10 
-                        border border-white/10 
+                        backdrop-blur-2xl bg-white/10 
+                        border border-white/30 
                         rounded-2xl 
-                        px-5 py-3 
-                        shadow-lg shadow-black/5
+                        px-5 py-4
+                        shadow-[0_8px_32px_rgba(0,0,0,0.1)]
                     ">
                     <div className="flex gap-6 text-xs text-white/60"> {/* Increased gap */}
                         <div className="flex flex-col items-center gap-1">

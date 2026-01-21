@@ -60,21 +60,7 @@ export default function TowerLight() {
                 }}
             />
 
-            {/* AQI Badge - Moved to Top Left to avoid collision */}
-            <div
-                className="absolute top-[180px] left-6 z-50 
-                    backdrop-blur-xl bg-black/30 border border-white/10 
-                    rounded-xl px-3 py-2 flex items-center gap-2
-                    shadow-lg shadow-black/10 transition-colors duration-500"
-            >
-                <div
-                    className="w-2.5 h-2.5 rounded-full animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.5)]"
-                    style={{ backgroundColor: aqi.color }}
-                />
-                <span className="text-white/90 text-xs font-light tracking-wide">
-                    {aqi.label}
-                </span>
-            </div>
+            {/* AQI Badge Removed - Relying on Namsan Signal Glow */}
         </>
     );
 }

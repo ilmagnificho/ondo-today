@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { useWeatherStore } from '@/store/weatherStore';
 import { Sun, Moon } from 'lucide-react';
 
@@ -17,7 +17,7 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
         viewingData
     } = useWeatherStore();
 
-    const { sun, weather } = viewingData;
+    const [isDragging, setIsDragging] = useState(false);
 
     // Handle slider change
     const handleSliderChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,10 +27,12 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
 
     // Handle interaction start/end for frost visibility logic
     const handleInteractionStart = () => {
+        setIsDragging(true);
         if (onDragStart) onDragStart();
     };
 
     const handleInteractionEnd = () => {
+        setIsDragging(false);
         if (onDragEnd) onDragEnd();
     };
 
@@ -53,12 +55,14 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
 
     return (
         <div className="absolute bottom-8 left-6 right-6 z-40 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
-            <div className="
-                glass-card rounded-2xl p-5 
+            <div className={`
+                glass-card rounded-3xl p-5 
                 flex flex-col gap-4
-                bg-black/20 backdrop-blur-xl border border-white/10
-                shadow-2xl shadow-black/20
-            ">
+                bg-white/10 backdrop-blur-xl border border-white/30
+                shadow-[0_8px_32px_rgba(0,0,0,0.12)]
+                transition-all duration-300 ease-out
+                ${isDragging ? 'scale-[1.02] bg-white/20' : 'hover:bg-white/15'}
+            `}>
                 {/* Header Info */}
                 <div className="flex justify-between items-end px-1">
                     <div className="flex flex-col">
@@ -88,7 +92,7 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
                 </div>
 
                 {/* Slider Control */}
-                <div className="relative h-16 flex items-center"> {/* Increased height for touch */}
+                <div className="relative h-16 flex items-center">
                     {/* Track Background */}
                     <div className="absolute w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
                         {/* Progress Bar */}
@@ -124,12 +128,10 @@ export default function TimeSlider({ onDragStart, onDragEnd }: TimeSliderProps) 
                         onMouseUp={handleInteractionEnd}
                         onTouchStart={handleInteractionStart}
                         onTouchEnd={handleInteractionEnd}
-                        className="
-                            relative w-full z-10 opacity-0 cursor-pointer h-12
-                        "
+                        className="relative w-full z-10 opacity-0 cursor-pointer h-16"
                     />
 
-                    {/* Custom Thumb Handle (Visual Only - follows state) */}
+                    {/* Custom Thumb Handle */}
                     <div
                         className="absolute w-8 h-8 bg-white rounded-full shadow-lg border-2 border-blue-50 pointer-events-none transition-all duration-100 ease-out flex items-center justify-center"
                         style={{

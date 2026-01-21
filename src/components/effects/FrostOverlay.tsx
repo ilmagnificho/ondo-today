@@ -173,8 +173,8 @@ export default function FrostOverlay({ temperature, isDragging = false }: FrostO
                     <div className="w-12 h-12 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20">
                         <Hand className="text-white w-6 h-6 animate-wave" />
                     </div>
-                    <span className="text-white/80 text-sm font-medium bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
-                        화면을 닦아보세요
+                    <span className="text-white/80 text-sm font-medium bg-black/30 px-4 py-1.5 rounded-full backdrop-blur-sm whitespace-nowrap">
+                        차가운 겨울 공기가 창에 서렸어요.
                     </span>
                 </div>
             )}

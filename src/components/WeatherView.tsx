@@ -113,22 +113,8 @@ export default function WeatherView({ isDragging = false }: WeatherViewProps) {
                 style={{ background: skyGradient }}
             />
 
-            {/* Layer 1: Sun/Moon Orb - Constrained to Sky Zone */}
-            {mounted && (
-                <div
-                    className="absolute z-10 rounded-full transition-all duration-700 ease-out pointer-events-none"
-                    style={{
-                        left: `${orbPosition.x}%`,
-                        top: `${orbPosition.y}%`,
-                        width: orbStyle.size,
-                        height: orbStyle.size,
-                        transform: 'translate(-50%, -50%)',
-                        background: `radial-gradient(circle, ${orbStyle.color} 0%, ${orbStyle.color}dd 60%, transparent 100%)`,
-                        boxShadow: orbStyle.glow,
-                        opacity: sun.phase === 'night' ? 0.9 : 1,
-                    }}
-                />
-            )}
+            {/* Layer 1: Sun/Moon Removed for cleaner atmosphere */}
+            {/* Lighting/Gradient carries the mood instead */}
 
             {/* Layer 2: City Image */}
             <div
@@ -296,16 +282,18 @@ function SnowEffect() {
     );
 }
 
-// Star Field
+// Elegant Star Field
 function StarField() {
+    // Generate static stars once
     const stars = useMemo(() => {
-        return Array.from({ length: 80 }).map((_, i) => ({
+        return Array.from({ length: 150 }).map((_, i) => ({
             id: i,
-            left: `${(i * 1.3) % 100}%`,
-            top: `${(i * 0.7) % 40}%`,
-            size: i % 5 === 0 ? 2 : 1,
-            delay: (i * 0.2) % 4,
-            opacity: 0.3 + (i % 5) * 0.14,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 60}%`, // Top 60% of screen
+            size: Math.random() < 0.8 ? 1.5 : 2.5, // Mostly small, some varied
+            opacity: Math.random() * 0.5 + 0.3, // Base opacity
+            duration: Math.random() * 3 + 2, // 2s to 5s blink
+            delay: Math.random() * 5,
         }));
     }, []);
 
@@ -314,17 +302,24 @@ function StarField() {
             {stars.map(star => (
                 <div
                     key={star.id}
-                    className="absolute rounded-full bg-white animate-twinkle"
+                    className="absolute rounded-full bg-white transition-opacity"
                     style={{
                         left: star.left,
                         top: star.top,
-                        width: star.size,
-                        height: star.size,
+                        width: `${star.size}px`,
+                        height: `${star.size}px`,
                         opacity: star.opacity,
-                        animationDelay: `${star.delay}s`,
+                        boxShadow: `0 0 ${star.size + 1}px rgba(255, 255, 255, 0.4)`,
+                        animation: `twinkle ${star.duration}s ease-in-out infinite ${star.delay}s`,
                     }}
                 />
             ))}
+            <style jsx>{`
+                @keyframes twinkle {
+                    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+                    50% { opacity: 1; transform: scale(1.1); }
+                }
+            `}</style>
         </div>
     );
 }

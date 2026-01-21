@@ -22,10 +22,6 @@ const WeatherView = dynamic(() => import('@/components/WeatherView'), {
 export default function Home() {
   const {
     fetchWeather,
-    isDebugMode,
-    toggleDebugMode,
-    setTimePhase,
-    setCondition,
     viewingData,
     viewingHourOffset,
     isLoading,
@@ -39,13 +35,11 @@ export default function Home() {
 
     // Auto-refresh every 5 minutes
     const interval = setInterval(() => {
-      if (!isDebugMode) {
-        fetchWeather('Seoul');
-      }
+      fetchWeather('Seoul');
     }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
-  }, [fetchWeather, isDebugMode]); // Removed viewingHourOffset dependency
+  }, [fetchWeather]); // Removed viewingHourOffset dependency
 
   return (
     <main className="relative w-screen h-[100dvh] overflow-hidden">
@@ -70,76 +64,14 @@ export default function Home() {
         </h1>
       </div>
 
-      {/* Debug Toggle - Moved up to not overlap with slider */}
-      <button
-        onClick={toggleDebugMode}
-        className="absolute top-8 right-[140px] z-50 w-9 h-9 rounded-full 
-                    backdrop-blur-lg bg-white/10 border border-white/20 
-                    flex items-center justify-center text-white/60 text-sm
-                    hover:bg-white/20 transition-all active:scale-95"
-        title="Debug Mode"
-      >
-        {isDebugMode ? '✕' : '🐛'}
-      </button>
-
-      {/* Debug Panel */}
-      {isDebugMode && (
-        <div className="absolute top-20 right-6 z-50 
-                    backdrop-blur-2xl bg-black/50 border border-white/20 rounded-2xl p-4
-                    animate-fadeIn min-w-[200px]">
-          <p className="text-xs text-white/40 mb-3 font-medium">Debug Controls</p>
-
-          {/* Time Phase */}
-          <div className="mb-3">
-            <p className="text-xs text-white/50 mb-2">Time Phase</p>
-            <div className="flex gap-1.5 flex-wrap">
-              {(['dawn', 'day', 'dusk', 'night'] as TimePhase[]).map((phase) => (
-                <button
-                  key={phase}
-                  onClick={() => setTimePhase(phase)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all
-                                        ${viewingData.sun.phase === phase
-                      ? 'bg-white/25 text-white'
-                      : 'bg-white/10 text-white/60 hover:bg-white/15'
-                    }`}
-                >
-                  {phase === 'dawn' && '🌅'}
-                  {phase === 'day' && '☀️'}
-                  {phase === 'dusk' && '🌇'}
-                  {phase === 'night' && '🌙'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Weather Condition */}
-          <div>
-            <p className="text-xs text-white/50 mb-2">Weather</p>
-            <div className="flex gap-1.5 flex-wrap">
-              {(['clear', 'clouds', 'rain', 'snow'] as WeatherCondition[]).map((cond) => (
-                <button
-                  key={cond}
-                  onClick={() => setCondition(cond)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all
-                                        ${viewingData.weather.condition === cond
-                      ? 'bg-white/25 text-white'
-                      : 'bg-white/10 text-white/60 hover:bg-white/15'
-                    }`}
-                >
-                  {cond === 'clear' && '☀️'}
-                  {cond === 'clouds' && '☁️'}
-                  {cond === 'rain' && '🌧️'}
-                  {cond === 'snow' && '❄️'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* State Info */}
-          <div className="mt-3 pt-3 border-t border-white/10 text-xs text-white/40 space-y-1">
-            <p>Phase: {viewingData.sun.phase} | Hour: {viewingData.sun.hour}</p>
-            <p>Sun Position: {viewingData.sun.position.toFixed(1)}%</p>
-            <p>Time Offset: +{viewingHourOffset}h</p>
+      {/* Subtle Loading Indicator - Center Bottom (above slider) */}
+      {/* Show only when refreshing existing data (not initial load) */}
+      {/* Also hidden during Time Travel to avoid distraction */}
+      {viewingHourOffset === 0 && isLoading && (
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-40 animate-fadeIn">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/20 backdrop-blur-md border border-white/10 shadow-lg">
+            <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <span className="text-[10px] text-white/60 font-medium">Updating...</span>
           </div>
         </div>
       )}
